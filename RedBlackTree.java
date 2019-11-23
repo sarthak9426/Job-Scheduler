@@ -1,3 +1,5 @@
+package cop5536;
+
 import java.util.*;
 
 /**
@@ -9,25 +11,31 @@ public class RedBlackTree {
 
 	public RedBlackTreeNode dummy;
 	public RedBlackTreeNode root;
-	public boolean dupInsertFlag=false;
-
+	public boolean dupInsertFlag = false; //flag to determine if a duplicate node is inserted in the tree
+	/**
+     * Constructor of the class
+     * @param null
+     * @return null
+     */
 	public RedBlackTree() {
 		dummy = RedBlackTreeNode.dummyNode;
 		root = dummy;
 		root.left = dummy;
 		root.right = dummy;
 	}
-
+	/**
+     * Enum used to store colouring info of the nodes in the tree
+     */
 	public enum COLOUR {
 		RED, BLACK
 	}
-
-//	public void insert(int key) {
-//		RedBlackTreeNode p = new RedBlackTreeNode(key);
-//		insertNode(p);
-//	}
-
+	/**
+     * Function to insert a node into the Red-Black Tree
+     * @param p
+     * @return boolean
+     */
 	public boolean insertNode(RedBlackTreeNode p) {
+		//new node is always a red node
 		p.colour = COLOUR.RED;
 		if (root == dummy) {
 			root = p;
@@ -39,69 +47,95 @@ public class RedBlackTree {
 		insertFix(p);
 		return dupInsertFlag;
 	}
-
+	/**
+     * Utility function to insert which is not the root node into the Red-Black Tree
+     * Insertion takes place just as an insertion in a binary search tree
+     * @param root,p
+     * @return
+     */
 	private void insertUtil(RedBlackTreeNode root, RedBlackTreeNode p) {
-		if(p.key == root.key)
-		{
-			dupInsertFlag=true;
-		}
+		// if root's key is equal to the newly entered node's key, mark duplicate
+		if (p.key == root.key) {
+			dupInsertFlag = true;
+		} 
 		else if (p.key < root.key) {
 			if (root.left == dummy) {
+				p.parent = root;
 				root.left = p;
-				p.parent = root;
-			} else
+			} 
+			else
 				insertUtil(root.left, p);
-		} else {
+		} 
+		else {
 			if (root.right == dummy) {
-				root.right = p;
 				p.parent = root;
+				root.right = p;
 			} else {
 				insertUtil(root.right, p);
 			}
 		}
 	}
-
+	/**
+     * Utility function to fix the Red Black tree if any of its properties have been violated.
+     * Performs rotation, exchanging of colours if needed
+     * @param p
+     * @return
+     */
 	private void insertFix(RedBlackTreeNode p) {
-		RedBlackTreeNode pp = dummy;
-		RedBlackTreeNode gp = dummy;
+		RedBlackTreeNode pp = dummy;		// Initialize parent of p to dummy node
+		RedBlackTreeNode gpp = dummy;		// Initialize grandparent of p to dummy node
+		
+		//If newly inserted node is the root node, fix it by making it colour black 
 		if (p.key == root.key) {
 			p.colour = COLOUR.BLACK;
 			return;
 		}
-		while (root.key != p.key && p.colour != COLOUR.BLACK && p.parent.colour == COLOUR.RED) {
+		
+		while (root.key != p.key && p.parent.colour == COLOUR.RED && p.colour != COLOUR.BLACK ) {
 			pp = p.parent;
-			gp = pp.parent;
-
-			if (pp == gp.left) {
-				RedBlackTreeNode u = gp.right;
-				if (u != dummy && u.colour == COLOUR.RED) {
-					gp.colour = COLOUR.RED;
+			gpp = pp.parent;
+			if (pp == gpp.left) {
+				//Insertion is in the left subtree
+				RedBlackTreeNode uncle = gpp.right;
+				if (uncle.colour == COLOUR.RED && uncle != dummy ) {
+					// case when the grandparent's right child is red
+					uncle.colour = COLOUR.BLACK;
 					pp.colour = COLOUR.BLACK;
-					u.colour = COLOUR.BLACK;
-					p = gp;
+					gpp.colour = COLOUR.RED;
+					// swapping of colours and percolating up till the root
+					p = gpp;
 				} else {
-					if (pp.right == p) {
+					//Case when grandparent's right child is black
+					if (p==pp.right) {
+						//if p is inserted as the right child of pp : Case LRb
 						pp = leftRotate(pp);
 						p = pp.left;
 					}
-					rightRotate(gp);
-					swapColour(pp, gp);
+					//case LLB if insertion was as the left child of pp
+					rightRotate(gpp);
+					exchangeColour(pp, gpp);
 					p = pp;
 				}
-			} else if (pp == gp.right) {
-				RedBlackTreeNode u = gp.left;
-				if (u != dummy && u.colour == COLOUR.RED) {
-					gp.colour = COLOUR.RED;
+			} else if (pp == gpp.right) {
+				RedBlackTreeNode uncle = gpp.left;
+				//Case when the insertion is in the right subtree of grandparent 
+				if (uncle != dummy && uncle.colour == COLOUR.RED) {
+					//Case when uncle is red i.e re-colouring is needed
+					uncle.colour = COLOUR.BLACK;
 					pp.colour = COLOUR.BLACK;
-					u.colour = COLOUR.BLACK;
-					p = gp;
+					gpp.colour = COLOUR.RED;
+					//percolate up
+					p = gpp;
 				} else {
-					if (pp.left == p) {
+					//Case when uncle is black
+					if (p==pp.left) {
+						//Case RLb
 						pp = rightRotate(pp);
 						p = pp.right;
 					}
-					leftRotate(gp);
-					swapColour(pp, gp);
+					//Case RRb
+					leftRotate(gpp);
+					exchangeColour(pp, gpp);
 					p = pp;
 				}
 			}
@@ -111,22 +145,19 @@ public class RedBlackTree {
 
 	private RedBlackTreeNode leftRotate(RedBlackTreeNode a) {
 		RedBlackTreeNode b = a.right;
-		RedBlackTreeNode al = a.left;
 		RedBlackTreeNode bl = b.left;
-		RedBlackTreeNode br = b.right;
-
 		a.right = bl;
 		if (bl != dummy) {
 			bl.parent = a;
 		}
-
 		b.parent = a.parent;
-
 		if (a.parent == dummy) {
 			root = b;
-		} else if (a == a.parent.left) {
+		} 
+		else if (a.parent.left==a ) {
 			a.parent.left = b;
-		} else {
+		} 
+		else {
 			a.parent.right = b;
 		}
 		b.left = a;
@@ -135,22 +166,17 @@ public class RedBlackTree {
 	}
 
 	private RedBlackTreeNode rightRotate(RedBlackTreeNode a) {
-
 		RedBlackTreeNode b = a.left;
-		RedBlackTreeNode ar = a.right;
-		RedBlackTreeNode bl = b.left;
 		RedBlackTreeNode br = b.right;
-
 		a.left = br;
 		if (br != dummy) {
 			br.parent = a;
 		}
-
 		b.parent = a.parent;
 
 		if (a.parent == dummy) {
 			root = b;
-		} else if (a == a.parent.left) {
+		} else if ( a.parent.left==a ) {
 			a.parent.left = b;
 		} else {
 			a.parent.right = b;
@@ -316,19 +342,10 @@ public class RedBlackTree {
 		return root;
 	}
 
-	private void swapColour(RedBlackTreeNode pp, RedBlackTreeNode gp) {
+	private void exchangeColour(RedBlackTreeNode pp, RedBlackTreeNode gpp) {
 		COLOUR temp = pp.colour;
-		pp.colour = gp.colour;
-		gp.colour = temp;
+		pp.colour = gpp.colour;
+		gpp.colour = temp;
 	}
 
-//	public static void main(String[] args) {
-//
-//		RedBlackTree rb = new RedBlackTree();
-//		rb.insert(1);
-//		rb.insert(2);
-//		rb.insert(3);
-//		rb.insert(4);
-//		System.out.println(rb.searchInRange(8,9));
-//	}
 }
