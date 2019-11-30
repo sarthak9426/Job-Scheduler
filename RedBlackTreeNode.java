@@ -1,5 +1,3 @@
-package cop5536;
-
 public class RedBlackTreeNode {
 	/**
 	 * In the RedBlackTree node, we keep the key as building number and an object

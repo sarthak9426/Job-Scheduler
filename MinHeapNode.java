@@ -1,5 +1,3 @@
-package cop5536;
-
 public class MinHeapNode {
 	/**
 	 * In the MinHeap node, we just keep the key which will be the executed time
@@ -10,7 +8,11 @@ public class MinHeapNode {
 
 	public int key; 				// Executed time
 	public RedBlackTreeNode rbNode; // Object reference of Red-Black Node
-
+	
+	/**
+	 * Constructor of the class
+	 * @param k
+	 */
 	public MinHeapNode(int k) {
 		this.key = k;
 	}

@@ -1,9 +1,7 @@
-package cop5536;
-
 import java.util.*;
 
 /**
- * Red-Black Tree implementation using RedBalckTreeNode
+ * Red-Black Tree implementation using RedBlackTreeNode
  * 
  * @author sartkapo
  */
@@ -11,31 +9,33 @@ public class RedBlackTree {
 
 	public RedBlackTreeNode dummy;
 	public RedBlackTreeNode root;
-	public boolean dupInsertFlag = false; //flag to determine if a duplicate node is inserted in the tree
+	public boolean dupInsertFlag = false; // flag to determine if a duplicate node is inserted in the tree
+
 	/**
-     * Constructor of the class
-     * @param null
-     * @return null
-     */
+	 * Constructor of the class
+	 */
 	public RedBlackTree() {
 		dummy = RedBlackTreeNode.dummyNode;
 		root = dummy;
 		root.left = dummy;
 		root.right = dummy;
 	}
+
 	/**
-     * Enum used to store colouring info of the nodes in the tree
-     */
+	 * Enum used to store colouring info of the nodes in the tree
+	 */
 	public enum COLOUR {
 		RED, BLACK
 	}
+
 	/**
-     * Function to insert a node into the Red-Black Tree
-     * @param p
-     * @return boolean
-     */
+	 * Function to insert a node into the Red-Black Tree
+	 * 
+	 * @param p
+	 * @return
+	 */
 	public boolean insertNode(RedBlackTreeNode p) {
-		//new node is always a red node
+		// new node is always a red node
 		p.colour = COLOUR.RED;
 		if (root == dummy) {
 			root = p;
@@ -44,15 +44,15 @@ public class RedBlackTree {
 			return dupInsertFlag;
 		}
 		insertUtil(root, p);
-		insertFix(p);
+		fixInsert(p);
 		return dupInsertFlag;
 	}
+
 	/**
-     * Utility function to insert which is not the root node into the Red-Black Tree
-     * Insertion takes place just as an insertion in a binary search tree
-     * @param root,p
-     * @return
-     */
+	 * Utility function to insert a node which is not the root node into the Red-Black Tree
+	 * @param root
+	 * @param p
+	 */
 	private void insertUtil(RedBlackTreeNode root, RedBlackTreeNode p) {
 		// if root's key is equal to the newly entered node's key, mark duplicate
 		if (p.key == root.key) {
@@ -70,70 +70,74 @@ public class RedBlackTree {
 			if (root.right == dummy) {
 				p.parent = root;
 				root.right = p;
-			} else {
+			} 
+			else
 				insertUtil(root.right, p);
-			}
 		}
 	}
+
 	/**
-     * Utility function to fix the Red Black tree if any of its properties have been violated.
-     * Performs rotation, exchanging of colours if needed
-     * @param p
-     * @return
-     */
-	private void insertFix(RedBlackTreeNode p) {
-		RedBlackTreeNode pp = dummy;		// Initialize parent of p to dummy node
-		RedBlackTreeNode gpp = dummy;		// Initialize grandparent of p to dummy node
-		
-		//If newly inserted node is the root node, fix it by making it colour black 
+	 * Utility function to fix the Red Black tree if any of its properties have been
+	 * violated. Performs rotation, exchanging of colours if needed
+	 * 
+	 * @param p
+	 * @return
+	 */
+	private void fixInsert(RedBlackTreeNode p) {
+		RedBlackTreeNode pp = dummy; // Initialize parent of p to dummy node
+		RedBlackTreeNode gpp = dummy; // Initialize grandparent of p to dummy node
+
+		// If newly inserted node is the root node, fix it by making it colour black
 		if (p.key == root.key) {
 			p.colour = COLOUR.BLACK;
 			return;
 		}
-		
-		while (root.key != p.key && p.parent.colour == COLOUR.RED && p.colour != COLOUR.BLACK ) {
+		while (root.key != p.key && p.parent.colour == COLOUR.RED && p.colour != COLOUR.BLACK) {
 			pp = p.parent;
 			gpp = pp.parent;
-			if (pp == gpp.left) {
-				//Insertion is in the left subtree
+			if (gpp.left==pp) {
+				// Insertion is in the left subtree
 				RedBlackTreeNode uncle = gpp.right;
-				if (uncle.colour == COLOUR.RED && uncle != dummy ) {
+				if (uncle.colour == COLOUR.RED && uncle != dummy) {
 					// case when the grandparent's right child is red
 					uncle.colour = COLOUR.BLACK;
 					pp.colour = COLOUR.BLACK;
 					gpp.colour = COLOUR.RED;
 					// swapping of colours and percolating up till the root
 					p = gpp;
-				} else {
-					//Case when grandparent's right child is black
-					if (p==pp.right) {
-						//if p is inserted as the right child of pp : Case LRb
+				} 
+				else {
+					// Case when grandparent's right child is black
+					if (p == pp.right) {
+						// if p is inserted as the right child of pp : Case LRb
 						pp = leftRotate(pp);
 						p = pp.left;
 					}
-					//case LLB if insertion was as the left child of pp
+					// case LLB if insertion was as the left child of pp
 					rightRotate(gpp);
 					exchangeColour(pp, gpp);
 					p = pp;
 				}
-			} else if (pp == gpp.right) {
+			} 
+			else if (pp == gpp.right) {
 				RedBlackTreeNode uncle = gpp.left;
-				//Case when the insertion is in the right subtree of grandparent 
+				// Case when the insertion is in the right subtree of grandparent
 				if (uncle != dummy && uncle.colour == COLOUR.RED) {
-					//Case when uncle is red i.e re-colouring is needed
+					// Case when uncle is red i.e re-colouring is needed
 					uncle.colour = COLOUR.BLACK;
 					pp.colour = COLOUR.BLACK;
 					gpp.colour = COLOUR.RED;
-					//percolate up
+					// percolate up
 					p = gpp;
-				} else {
-					//Case when uncle is black
-					if (p==pp.left) {
-						//Case RLb
+				} 
+				else {
+					// Case when uncle is black
+					if (p == pp.left) {
+						// Case RLb
 						pp = rightRotate(pp);
 						p = pp.right;
 					}
-					//Case RRb
+					// Case RRb
 					leftRotate(gpp);
 					exchangeColour(pp, gpp);
 					p = pp;
@@ -143,168 +147,256 @@ public class RedBlackTree {
 		root.colour = COLOUR.BLACK;
 	}
 
-	private RedBlackTreeNode leftRotate(RedBlackTreeNode a) {
-		RedBlackTreeNode b = a.right;
-		RedBlackTreeNode bl = b.left;
-		a.right = bl;
-		if (bl != dummy) {
-			bl.parent = a;
+	/**
+	 * Utility function to left rotate the tree taking the given node as the root
+	 * @param node
+	 * @return
+	 */
+	private RedBlackTreeNode leftRotate(RedBlackTreeNode node) {
+		RedBlackTreeNode rightSubtree = node.right;
+		RedBlackTreeNode rightLeftSubtree = rightSubtree.left;
+		node.right = rightLeftSubtree;
+		if (rightLeftSubtree != dummy) {
+			rightLeftSubtree.parent = node;
 		}
-		b.parent = a.parent;
-		if (a.parent == dummy) {
-			root = b;
-		} 
-		else if (a.parent.left==a ) {
-			a.parent.left = b;
-		} 
-		else {
-			a.parent.right = b;
-		}
-		b.left = a;
-		a.parent = b;
-		return b;
+		rightSubtree.parent = node.parent;
+		if (node.parent == dummy)
+			root = rightSubtree; 
+		else if (node.parent.left == node) 
+			node.parent.left = rightSubtree;
+		else 
+			node.parent.right = rightSubtree;
+		rightSubtree.left = node;
+		node.parent = rightSubtree;
+		return rightSubtree;
 	}
 
-	private RedBlackTreeNode rightRotate(RedBlackTreeNode a) {
-		RedBlackTreeNode b = a.left;
-		RedBlackTreeNode br = b.right;
-		a.left = br;
-		if (br != dummy) {
-			br.parent = a;
-		}
-		b.parent = a.parent;
-
-		if (a.parent == dummy) {
-			root = b;
-		} else if ( a.parent.left==a ) {
-			a.parent.left = b;
-		} else {
-			a.parent.right = b;
-		}
-		b.right = a;
-		a.parent = b;
-		return b;
+	/**
+	 * Utility function to right rotate the tree taking the given node as the root
+	 * 
+	 * @param node
+	 * @return RedBlackTreeNode
+	 */
+	private RedBlackTreeNode rightRotate(RedBlackTreeNode node) {
+		RedBlackTreeNode leftSubtree = node.left;
+		RedBlackTreeNode leftRightSubtree = leftSubtree.right;
+		node.left = leftRightSubtree;
+		if (leftRightSubtree != dummy)
+			leftRightSubtree.parent = node;
+		leftSubtree.parent = node.parent;
+		if (dummy == node.parent)
+			root = leftSubtree;
+		else if (node.parent.left == node)
+			node.parent.left = leftSubtree;
+		else
+			node.parent.right = leftSubtree;
+		leftSubtree.right = node;
+		node.parent = leftSubtree;
+		return leftSubtree;
 	}
 
-	private void levelUp(RedBlackTreeNode a, RedBlackTreeNode b) {
-		if (a.parent == dummy) {
-			root = b;
-		} else if (a == a.parent.left) {
-			a.parent.left = b;
-		} else {
-			a.parent.right = b;
-		}
-		b.parent = a.parent;
-	}
-
+	/**
+	 * Function to search for a node in the tree with the given key
+	 * @param key
+	 * @return
+	 */
 	public RedBlackTreeNode search(int key) {
 		return searchUtil(root, key);
 	}
 
+	/**
+	 * Utility function to search the node in the tree. Works exactly like search in
+	 * binary search tree
+	 * @param root
+	 * @param key
+	 * @return
+	 */
 	private RedBlackTreeNode searchUtil(RedBlackTreeNode root, int key) {
-		if (root == dummy) {
+		if (root == dummy)
 			return null;
-		}
-		if (root.key == key) {
+		if (root.key == key)
 			return root;
-		} else if (key < root.key) {
+		else if (key < root.key)
 			return searchUtil(root.left, key);
-		} else {
+		else
 			return searchUtil(root.right, key);
-		}
 	}
 
+	/**
+	 * Function to search all the nodes in the tree whose key lies in the given range
+	 * @param key1
+	 * @param key2
+	 * @return
+	 */
+	public List<RedBlackTreeNode> searchInRange(int key1, int key2) {
+		List<RedBlackTreeNode> list = new LinkedList<RedBlackTreeNode>();
+		searchRangeUtil(root, list, key1, key2);
+		return list;
+	}
+
+	/**
+	 * Utility function to search all the nodes in the tree whose key lies in the given range
+	 * @param root
+	 * @param list
+	 * @param k1
+	 * @param k2
+	 */
+	private void searchRangeUtil(RedBlackTreeNode root, List<RedBlackTreeNode> list, int k1, int k2) {
+		if (root == dummy)
+			return;
+		if (root.key > k1)
+			searchRangeUtil(root.left, list, k1, k2);
+		if (k1 <= root.key && k2 >= root.key)
+			list.add(root);
+		if (root.key < k2)
+			searchRangeUtil(root.right, list, k1, k2);
+	}
+
+	/**
+	 * Function to delete a node in the tree with the given reference
+	 * @param p
+	 * @return
+	 */
 	public boolean delete(RedBlackTreeNode p) {
 		return delete(p.key);
 	}
 
+	/**
+	 * Utility function to delete a node in the tree with the given key
+	 * @param key
+	 * @return
+	 */
 	public boolean delete(int key) {
 		RedBlackTreeNode y = searchUtil(root, key);
-		if (y == null) {
+		// If node not in tree, return false
+		if (y == null)
 			return false;
-		}
+		RedBlackTreeNode lastNode = y;
 		RedBlackTreeNode v;
-		RedBlackTreeNode temp = y;
 		COLOUR origCOLOUR = y.colour;
-		if (y.left == dummy) {
+		// Check if left child is dummy or not
+		if (dummy == y.left) {
 			v = y.right;
-			levelUp(y, y.right);
-		} else if (y.right == dummy) {
+			percolateUp(y, y.right);
+		}
+		// Check if right child is dummy or not
+		else if (dummy == y.right) {
 			v = y.left;
-			levelUp(y, y.left);
-		} else {
-			temp = getMin(y.right);
-			origCOLOUR = temp.colour;
-			v = temp.right;
-			if (temp.parent == y) {
-				v.parent = temp;
-			} else {
-				levelUp(temp, temp.right);
-				temp.right = y.right;
-				temp.right.parent = temp;
+			percolateUp(y, y.left);
+		} 
+		else {
+			// Case when both child are not null- 2 degree node
+			lastNode = getLeftMostNode(y.right);
+			origCOLOUR = lastNode.colour;
+			v = lastNode.right;
+			if (y == lastNode.parent)
+				v.parent = lastNode;
+			else {
+				percolateUp(lastNode, lastNode.right);
+				lastNode.right = y.right;
+				lastNode.right.parent = lastNode;
 			}
-			levelUp(y, temp);
-			temp.left = y.left;
-			temp.left.parent = temp;
-			temp.colour = y.colour;
+			percolateUp(y, lastNode);
+			lastNode.left = y.left;
+			lastNode.left.parent = lastNode;
+			lastNode.colour = y.colour;
 		}
-		if (origCOLOUR == COLOUR.BLACK) {
-			deleteFix(v);
-		}
+		// if the node deleted was of colour, tree needs to be fixed to adhere to
+		// red-black tree properties
+		if (COLOUR.BLACK == origCOLOUR)
+			fixDelete(v);
 		return true;
 	}
 
-	private void deleteFix(RedBlackTreeNode py) {
+	/**
+	 * Utility function to get the minimum key element(left most) in the tree
+	 * @param root
+	 * @return
+	 */
+	private RedBlackTreeNode getLeftMostNode(RedBlackTreeNode root) {
+		while (root.left != dummy)
+			root = root.left;
+		return root;
+	}
 
-		while (py != root && py.colour == COLOUR.BLACK) {
-			if (py == py.parent.left) {
+	/**
+	 * Utility function to insert node2 as the child of node1
+	 * @param node1
+	 * @param node2
+	 */
+	private void percolateUp(RedBlackTreeNode node1, RedBlackTreeNode node2) {
+		if (dummy == node1.parent)
+			root = node2;
+		else if (node1.parent.left == node1)
+			node1.parent.left = node2;
+		else
+			node1.parent.right = node2;
+		node2.parent = node1.parent;
+	}
+
+	/**
+	 * Utility function to fix by (rotations,colour changes) to adhere to the
+	 * red-black tree properties
+	 * @param py
+	 */
+	private void fixDelete(RedBlackTreeNode py) {
+		while (py.colour == COLOUR.BLACK && root != py) {
+			if (py.parent.left == py) {
 				RedBlackTreeNode v = py.parent.right;
-
 				if (v.colour == COLOUR.RED) {
-					v.colour = COLOUR.BLACK;
+					// if v colour is red, left rotate
 					py.parent.colour = COLOUR.RED;
+					v.colour = COLOUR.BLACK;
 					leftRotate(py.parent);
 					v = py.parent.right;
 				}
-				if (v.left.colour == COLOUR.BLACK && v.right.colour == COLOUR.BLACK) {
-					v.colour = COLOUR.RED;
+				if (v.right.colour == COLOUR.BLACK && v.left.colour == COLOUR.BLACK) {
+					// recolour if both the children of v are black
 					py = py.parent;
+					v.colour = COLOUR.RED;
 					continue;
-				} else if (v.right.colour == COLOUR.BLACK) {
+				} 
+				else if (COLOUR.BLACK == v.right.colour) {
+					// if v colour is black, right rotate
 					v.left.colour = COLOUR.BLACK;
 					v.colour = COLOUR.RED;
 					rightRotate(v);
 					v = py.parent.right;
 				}
-				if (v.right.colour == COLOUR.RED) {
+				if (COLOUR.RED == v.right.colour) {
 					v.colour = py.parent.colour;
 					py.parent.colour = COLOUR.BLACK;
 					v.right.colour = COLOUR.BLACK;
 					leftRotate(py.parent);
 					py = root;
 				}
-			} else {
+			} 
+			else {
+				// if it is a right child
 				RedBlackTreeNode v = py.parent.left;
 				if (v.colour == COLOUR.RED) {
-					v.colour = COLOUR.BLACK;
+					// if v is red, recolour and right rotate
 					py.parent.colour = COLOUR.RED;
+					v.colour = COLOUR.BLACK;
 					rightRotate(py.parent);
 					v = py.parent.left;
 				}
-
-				if (v.right.colour == COLOUR.BLACK && v.left.colour == COLOUR.BLACK) {
+				if (v.left.colour == COLOUR.BLACK && v.right.colour == COLOUR.BLACK) {
+					// if both child are black, just recolour
 					v.colour = COLOUR.RED;
 					py = py.parent;
 					continue;
-				} else if (v.left.colour == COLOUR.BLACK) {
-					v.right.colour = COLOUR.BLACK;
+				} 
+				else if (v.left.colour == COLOUR.BLACK) {
+					// symmetric case to the left rotate case in the case where v was the left child
 					v.colour = COLOUR.RED;
+					v.right.colour = COLOUR.BLACK;
 					leftRotate(v);
 					v = py.parent.left;
 				}
-				if (v.left.colour == COLOUR.RED) {
-					v.colour = py.parent.colour;
+				if (COLOUR.RED == v.left.colour) {
 					py.parent.colour = COLOUR.BLACK;
+					v.colour = py.parent.colour;
 					v.left.colour = COLOUR.BLACK;
 					rightRotate(py.parent);
 					py = root;
@@ -314,38 +406,15 @@ public class RedBlackTree {
 		py.colour = COLOUR.BLACK;
 	}
 
-	public List<RedBlackTreeNode> searchInRange(int key1, int key2) {
-		List<RedBlackTreeNode> list = new LinkedList<RedBlackTreeNode>();
-		searchInRange(root, list, key1, key2);
-		return list;
-	}
-
-	private void searchInRange(RedBlackTreeNode root, List<RedBlackTreeNode> list, int key1, int key2) {
-		if (root == dummy) {
-			return;
-		}
-		if (key1 < root.key) {
-			searchInRange(root.left, list, key1, key2);
-		}
-		if (key1 <= root.key && key2 >= root.key) {
-			list.add(root);
-		}
-		if (key2 > root.key) {
-			searchInRange(root.right, list, key1, key2);
-		}
-	}
-
-	private RedBlackTreeNode getMin(RedBlackTreeNode root) {
-		while (root.left != dummy) {
-			root = root.left;
-		}
-		return root;
-	}
-
+	/**
+	 * Utility function to exchange colours of two given nodes
+	 * @param pp
+	 * @param gpp
+	 */
 	private void exchangeColour(RedBlackTreeNode pp, RedBlackTreeNode gpp) {
-		COLOUR temp = pp.colour;
-		pp.colour = gpp.colour;
-		gpp.colour = temp;
+		COLOUR temp = gpp.colour;
+		gpp.colour = pp.colour;
+		pp.colour = temp;
 	}
 
 }
