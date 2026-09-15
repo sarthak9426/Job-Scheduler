@@ -30,4 +30,32 @@ The Red-Black Tree is used to maintain a height balanced binary search tree. Eac
 
 Both the data structures ensure that all the operations take O(log(n)) worst case time.
 
+## Build and Run
+
+The project uses the Gradle wrapper, so no local Gradle install is needed (it downloads the pinned version on first use). Java 17+ is required.
+
+Run the test suite (MinHeap, Red-Black Tree, and a red-black invariant validator):
+
+```bash
+./gradlew test
+```
+
+Run the simulator against an input file:
+
+```bash
+./gradlew run --args="input_file.txt"
+```
+
+The result is written to `output_file.txt` in the working directory.
+
+Input commands are one per line in the form `<time>: <Command>(<args>)`, for example:
+
+```
+0: Insert(5,25)
+2: Insert(9,30)
+6: PrintBuilding(5)
+8: PrintBuilding(1,100)
+```
+
+
 

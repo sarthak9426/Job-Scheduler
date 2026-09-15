@@ -7,6 +7,10 @@ bin/
 # Program output
 output_file.txt
 
+# Gradle (the gradle/wrapper/ files and gradlew scripts ARE committed)
+.gradle/
+build/
+
 # IDE
 .idea/
 .vscode/

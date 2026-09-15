@@ -1,0 +1,51 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+// This project keeps all .java files at the repository root (default package)
+// rather than the usual src/main/java tree, so the source sets are pointed at
+// the root explicitly. Main = every .java file except the *Test.java files;
+// test = only the *Test.java files.
+sourceSets {
+    main {
+        java {
+            srcDirs = ['.']
+            exclude '**/*Test.java'
+        }
+    }
+    test {
+        java {
+            srcDirs = ['.']
+            include '**/*Test.java'
+        }
+    }
+}
+
+application {
+    // The simulator entry point; run with: ./gradlew run --args="input_file.txt"
+    mainClass = 'risingCity'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+    }
+}
