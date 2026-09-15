@@ -395,8 +395,8 @@ public class RedBlackTree {
 					v = py.parent.left;
 				}
 				if (COLOUR.RED == v.left.colour) {
-					py.parent.colour = COLOUR.BLACK;
 					v.colour = py.parent.colour;
+					py.parent.colour = COLOUR.BLACK;
 					v.left.colour = COLOUR.BLACK;
 					rightRotate(py.parent);
 					py = root;

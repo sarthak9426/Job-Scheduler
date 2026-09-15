@@ -5,7 +5,6 @@
  */
 public class MinHeap {
 	
-	public int max_size = 2000;
 	public int size = 0;
 	public MinHeapNode[] heap;
 	
@@ -54,8 +53,10 @@ public class MinHeap {
 		int pos = size;
 		size += 1;
 		heap[pos] = p;
-		if(heap[getParentIndex(pos)].key==heap[pos].key)
-		{
+		// A newly placed node has no parent to compare against at the root.
+		if (pos == 0)
+			return;
+		if (heap[getParentIndex(pos)].key == heap[pos].key) {
 			while (pos != 0 && (heap[getParentIndex(pos)].key == heap[pos].key) && (heap[getParentIndex(pos)].rbNode.key > heap[pos].rbNode.key)) {
 				MinHeapNode temp = heap[pos];
 				heap[pos] = heap[getParentIndex(pos)];

@@ -3,7 +3,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URL;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,9 +11,7 @@ public class risingCity {
 
 	private static String IN_FILE;
 	private static final String OUT_FILE = "output_file.txt";
-	private static String pattern = "(^\\d+): ([a-zA-Z]+)\\((.+)\\)";
-	private BufferedReader buffReader = null;
-	private FileReader fileReader = null;
+	private static final Pattern COMMAND_PATTERN = Pattern.compile("(^\\d+): ([a-zA-Z]+)\\((.+)\\)");
 	private FileWriter fileWriter;
 
 	private RedBlackTree tree = new RedBlackTree();
@@ -41,17 +38,13 @@ public class risingCity {
 	 * Utility function to read the input file, parse it and call the sub-routines accordingly
 	 */
 	private void startConstruction() {
-		try {
-			String s = new File(IN_FILE).getAbsolutePath();
-			if (debug)
-				System.out.println(s);
-			URL path = ClassLoader.getSystemResource(IN_FILE);
-			if (debug)
-				System.out.println(path.getPath());
+		String absolutePath = new File(IN_FILE).getAbsolutePath();
+		if (debug)
+			System.out.println(absolutePath);
 
-			fileReader = new FileReader(new File(s));
-			buffReader = new BufferedReader(fileReader);
-			fileWriter = new FileWriter(OUT_FILE);
+		try (BufferedReader buffReader = new BufferedReader(new FileReader(absolutePath));
+				FileWriter localWriter = new FileWriter(OUT_FILE)) {
+			this.fileWriter = localWriter;
 
 			String inputLine;
 			String[] params;
@@ -59,8 +52,7 @@ public class risingCity {
 			while ((inputLine = buffReader.readLine()) != null) {
 				if (debug)
 					System.out.println("Time:" + timer);
-				Pattern p = Pattern.compile(pattern);
-				Matcher m = p.matcher(inputLine);
+				Matcher m = COMMAND_PATTERN.matcher(inputLine);
 				if (debug)
 					System.out.println(inputLine);
 
@@ -103,15 +95,6 @@ public class risingCity {
 			executeRemainingBuildings();
 		} catch (Exception e) {
 			e.printStackTrace();
-		} finally {
-			try {
-				fileReader.close();
-				fileWriter.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-				if (debug)
-					System.out.print("Error in startConstruction function");
-			}
 		}
 	}
 
